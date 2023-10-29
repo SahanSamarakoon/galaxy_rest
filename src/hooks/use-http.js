@@ -14,12 +14,13 @@ const useHttp = () => {
         body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
       });
 
-      if (!response.ok) {
+      console.log(response)
+      if (response.ok || response.status===201) {
+        const data = await response.json();
+        applyData(data);
+      }else{
         throw new Error('Request failed!');
       }
-
-      const data = await response.json();
-      applyData(data);
     } catch (err) {
       setError(err.message || 'Something went wrong!');
     }

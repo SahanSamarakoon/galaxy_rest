@@ -1,53 +1,61 @@
 import classes from "./Cart.module.css";
+import React, {useState} from "react";
+import {useSelector, useDispatch} from "react-redux";
+import cartSlice from "../../store/cart-slice";
 import Modal from "../Common/Modal";
-import React, {useContext, useState} from "react";
-import CartContext from "../../store/cart-context";
 import CartItem from "./CartItem";
 import Checkout from "./Checkout";
 import useHttp from "../../hooks/use-http";
 
 const Cart = props => {
+    const cartDispatch = useDispatch();
+    const cartItems = useSelector(state => state.cart.items);
+    const cartTotalAmount = useSelector(state => state.cart.totalAmount);
     const [isCheckout, setCheckout] = useState(false);
-    const cartContext = useContext(CartContext);
     const [didSubmit, setDidSubmit] = useState(false);
     const {isLoading, sendRequest : addOrder, error} = useHttp();
 
-    const totalAmount = `$${cartContext.totalAmount.toFixed(2)}`;
-    const hasAmount = cartContext.items.length > 0;
+    const totalAmount = `$${cartTotalAmount.toFixed(2)}`;
+    const hasAmount = cartItems.length > 0;
 
     const cartItemAddHandler = item => {
-        cartContext.addItem({...item, amount:1});
+        cartDispatch(cartSlice.actions.addItemToCart({...item, amount:1}));
     };
     const cartItemRemoveHandler = id => {
-        cartContext.removeItem(id);
+        cartDispatch(cartSlice.actions.removeItemFromCart(id));
     };
 
     const submitOrderHandler = (userData) => {
+        const orderedItems = cartItems.map(item => { return {mealId: item.id, quantity: item.quantity}});
         try{
             addOrder({
                 method: "POST",
                 body: {
                     user: userData,
-                    orderedItems: cartContext.items,
+                    orderItems: orderedItems,
+                    totalAmount: cartTotalAmount,
+                    status: "Pending"
                 },
-                url: 'https://resturent-afdaa-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json'
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                url: 'http://localhost:8080/order'
             });
             setDidSubmit(true);
-            cartContext.clearCart();
+            cartDispatch(cartSlice.actions.clearCart());
         }
         catch (err){
             console.log(err);
         }
-
     }
 
-    const cartItems = (
+    const cartItemsComponent = (
         <ul className={classes['cart-items']}>
-            {cartContext.items.map((item) => (
+            {cartItems.map((item) => (
                 <CartItem
                     key={item.id}
                     name={item.name}
-                    amount={item.amount}
+                    amount={item.quantity}
                     price={item.price}
                     onRemove={cartItemRemoveHandler.bind(null, item.id)}
                     onAdd={cartItemAddHandler.bind(null, item)}
@@ -65,7 +73,7 @@ const Cart = props => {
 
     const cartModalContent = (
         <React.Fragment>
-            {cartItems}
+            {cartItemsComponent}
             <div className={classes.total}>
                 <span>Total Amount</span>
                 <span>{totalAmount}</span>

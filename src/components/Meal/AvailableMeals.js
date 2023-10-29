@@ -11,17 +11,17 @@ const AvailableMeals = () => {
     useEffect(() => {
         const transformMeals = (mealsObj) => {
             const loadedMeals = [];
-            for (const mealKey in mealsObj) {
+            for (const meal in mealsObj) {
                 loadedMeals.push({
-                    id: mealKey,
-                    name: mealsObj[mealKey].name,
-                    description: mealsObj[mealKey].description,
-                    price: mealsObj[mealKey].price
+                    id: mealsObj[meal].id,
+                    name: mealsObj[meal].name,
+                    description: mealsObj[meal].description,
+                    price: mealsObj[meal].price
                 });
             }
             setMeals(loadedMeals);
         };
-        fetchMeals({url: 'https://resturent-afdaa-default-rtdb.asia-southeast1.firebasedatabase.app/meals.json'}, transformMeals);
+        fetchMeals({url: 'http://localhost:8080/meals'}, transformMeals);
     }, [fetchMeals]);
 
     const mealsList = meals.map((meal) => (

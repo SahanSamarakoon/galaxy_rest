@@ -11,12 +11,16 @@ const Checkout = (props) => {
         street: true,
         city: true,
         postalCode: true,
+        email: true,
+        phone: true
     });
 
     const nameInputRef = useRef();
     const streetInputRef = useRef();
     const postalCodeInputRef = useRef();
     const cityInputRef = useRef();
+    const emailInputRef = useRef();
+    const phoneInputRef = useRef();
 
     const confirmHandler = (event) => {
         event.preventDefault();
@@ -25,24 +29,32 @@ const Checkout = (props) => {
         const enteredStreet = streetInputRef.current.value;
         const enteredPostalCode = postalCodeInputRef.current.value;
         const enteredCity = cityInputRef.current.value;
+        const enteredEmail = emailInputRef.current.value;
+        const enteredPhone = phoneInputRef.current.value;
 
         const enteredNameIsValid = !isEmpty(enteredName);
         const enteredStreetIsValid = !isEmpty(enteredStreet);
         const enteredCityIsValid = !isEmpty(enteredCity);
         const enteredPostalCodeIsValid = isFiveChars(enteredPostalCode);
+        const enteredEmailIsValid = !isEmpty(enteredEmail);
+        const enteredPhoneIsValid = !isEmpty(enteredPhone);
 
         setFormInputsValidity({
             name: enteredNameIsValid,
             street: enteredStreetIsValid,
             city: enteredCityIsValid,
             postalCode: enteredPostalCodeIsValid,
+            email: enteredEmailIsValid,
+            phone: enteredPhoneIsValid
         });
 
         const formIsValid =
             enteredNameIsValid &&
             enteredStreetIsValid &&
             enteredCityIsValid &&
-            enteredPostalCodeIsValid;
+            enteredPostalCodeIsValid &&
+            enteredEmailIsValid &&
+            enteredPhoneIsValid;
 
         if (!formIsValid) {
             return;
@@ -52,7 +64,9 @@ const Checkout = (props) => {
             name: enteredName,
             street: enteredStreet,
             city: enteredCity,
-            postalCode: enteredPostalCode
+            postalCode: enteredPostalCode,
+            email: enteredEmail,
+            phone: enteredPhone
         });
     };
 
@@ -67,6 +81,12 @@ const Checkout = (props) => {
     }`;
     const cityControlClasses = `${classes.control} ${
         formInputsValidity.city ? '' : classes.invalid
+    }`;
+    const emailControlClasses = `${classes.control} ${
+        formInputsValidity.email ? '' : classes.invalid
+    }`;
+    const phoneControlClasses = `${classes.control} ${
+        formInputsValidity.phone ? '' : classes.invalid
     }`;
 
     return (
@@ -92,6 +112,16 @@ const Checkout = (props) => {
                 <label htmlFor='city'>City</label>
                 <input type='text' id='city' ref={cityInputRef} />
                 {!formInputsValidity.city && <p>Please enter a valid city!</p>}
+            </div>
+            <div className={emailControlClasses}>
+                <label htmlFor='email'>Email</label>
+                <input type='email' id='email' ref={emailInputRef} />
+                {!formInputsValidity.email && <p>Please enter a valid email!</p>}
+            </div>
+            <div className={phoneControlClasses}>
+                <label htmlFor='phone'>Phone</label>
+                <input type='tel' id='phone' ref={phoneInputRef} />
+                {!formInputsValidity.phone && <p>Please enter a valid phone!</p>}
             </div>
             <div className={classes.actions}>
                 <button type='button' onClick={props.onCancel}>
